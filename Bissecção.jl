@@ -10,14 +10,13 @@ function bisseccao(f, a, b, tol, max_iter)
         return
     end
 
-    println("Iteração   |   a   |   b   |   x   |    f(x)")
 
     for i in 1:max_iter
 
         # Ponto médio
         x = (a + b) / 2
 
-        println("iteração ", i, " | ", a, " | ", b, " | ", x, " | ", f(x))
+        println("iteração", i, " |a: ", a, " |b: ", b, " |x: ", x, " |f(x): ", f(x))
 
         # Critério de parada
         if abs(f(x)) < tol || abs(b - a) < tol
@@ -40,16 +39,21 @@ end
 
 
 # ==========================================
-# EXEMPLO
+# Esse método acha somente uma raiz por vez. 
 # ==========================================
 
-f(x) = x*log10(x) -1
+#Função
+f(x) = x^2 + x - 6                 
 
-a = 1.0
-b = 3.0
+#Ranges
+a = -5
+b = 0
 
+#tolerancia
 tol = 0.0001
 
+#iterações maximas
 max_iter = 100
+
 
 bisseccao(f, a, b, tol, max_iter)
