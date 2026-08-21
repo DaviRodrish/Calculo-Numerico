@@ -15,12 +15,14 @@ function falsa_posicao(f, a, b, tol, max_iter)
     elseif fb == 0
         return b
     elseif fa * fb > 0
-        error("f(a) e f(b) devem ter sinais opostos.")
+        error("Não ha raiz nesse intervalo. f(a) e f(b) devem ter sinais opostos.")
     end
 
-    for _ in 1:max_iter
+    for i in 1:max_iter
         x = a - fa * (b - a) / (fb - fa)
         fx = f(x)
+
+        print("\n iteração ",i, " a: ", a, " b: ",b, " f(a): ", fa, " f(b): ", fb)
 
         if abs(fx) <= tol
             return x
@@ -36,4 +38,4 @@ end
 
 # Aqui as suas variáveis entram direto na função
 raiz = falsa_posicao(f, a, b, tolerancia, maximo_iteracoes)
-println("Raiz aproximada: ", raiz)
+println("\n Raiz aproximada: ", raiz)
