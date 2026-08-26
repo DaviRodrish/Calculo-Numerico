@@ -2,7 +2,7 @@ function secante(f, a, b, tol, max_iter)
     for _ in 1:max_iter
         fa = f(a)
         fb = f(b)
-        
+        print("\na: ", a," f(a): ",fa, " b: ",b," f(b): ",fb)
         if fb == fa
             return b
         end
@@ -18,11 +18,11 @@ function secante(f, a, b, tol, max_iter)
     return b
 end
 
-f(x) = exp(x) - 3*x
-a = 0.0
-b = 1.0
+f(x) = x^2 + x - 6
+a = -5
+b = 0
 tol = 1e-6
 max_iter = 50
 
 raiz = secante(f, a, b, tol, max_iter)
-println(raiz)
+println("\nRaiz encontrada: ", raiz)
