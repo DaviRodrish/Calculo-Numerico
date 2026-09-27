@@ -1,4 +1,4 @@
-# Dupla: Paulo Fernando P Junior e Davi Rodrigues
+# Dupla 16: Davi Rodrigues e Paulo Fernando P. Junior
 # MÉTODO DA FALSA POSIÇÃO
 
 function falsa_posicao(f, a, b, tol, maxiter)

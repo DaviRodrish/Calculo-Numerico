@@ -1,80 +1,91 @@
-using LinearAlgebra
+# Dupla 16: Davi Rodrigues e Paulo Fernando P. Junior
+# Método: Gauss-Jacobi
 
-matriz = [
-    5.0 -1.0 2.0;
-    3.0 8.0 -2.0;
-    1.0 1.0 4.0
-]
-vetor = [12.0, -25.0, 6.0]
-chute_inicial = [0.0, 0.0, 0.0]
-criterio_erro = 1e-8
-limite_iteracoes = 100
-exibir_etapas = true
 
-function analisar_linhas(A::AbstractMatrix)
-    n = size(A, 1)
-    d = abs.(diag(A))
-    any(iszero, d) && error("Diagonal principal nao pode conter zeros.")
-    alphas = [(sum(abs, @view A[i, :]) - d[i]) / d[i] for i in 1:n]
-    return maximum(alphas) < 1.0, maximum(alphas), alphas
-end
+function jacobi(A, b, x0, tol, maxiter)
 
-function resolver_jacobi(A::AbstractMatrix, b::AbstractVector;
-    x0=zeros(length(b)), tol=1e-6, max_iter=1000, verbose=true)
     n = length(b)
-    size(A) == (n, n) || throw(DimensionMismatch("Matriz e vetor com tamanhos incompativeis."))
 
-    valido, alfa_max, alphas = analisar_linhas(A)
-    d = diag(A)
-
-    if verbose
-        println("  METODO DE GAUSS-JACOBI")
-        println("\n")
-        println("  Criterio das Linhas   ", valido ? "Satisfeito" : "Nao satisfeito")
-        println("  Fator alpha maximo    $(round(alfa_max, digits=4))")
-        println("  Alphas por linha      ", round.(alphas, digits=4))
-        println("\n")
-        println("Iteracao   Solucao Aproximada x^(k)                  Erro")
-        println("\n")
+    # Verifica se A é quadrada
+    if size(A) != (n, n)
+        error("A matriz deve ser quadrada e compatível com b.")
     end
 
-    x = float(copy(x0))
-    historico = []
-    convergido = false
+    # Verifica se a diagonal possui zeros
+    for i in 1:n
+        if A[i, i] == 0
+            error("Elemento da diagonal não pode ser zero.")
+        end
+    end
 
-    for k in 1:max_iter
-        x_novo = x + (b - A * x) ./ d
-        erro = norm(x_novo - x, Inf) / max(norm(x_novo, Inf), eps())
-        push!(historico, (iteracao=k, x=copy(x_novo), erro=erro))
+    # Converte para Float64
+    A = float(A)
+    b = float(b)
+    x = float(copy(x0))
+
+    # ======================================================
+    # MÉTODO DE JACOBI
+    # ======================================================
+
+    for k in 1:maxiter
+
+        x_novo = zeros(Float64, n)
+
+        # Calcula cada componente usando SOMENTE os
+        # valores da iteração anterior
+        for i in 1:n
+
+            soma = 0.0
+
+            for j in 1:n
+                if j != i
+                    soma += A[i, j] * x[j]
+                end
+            end
+
+            x_novo[i] = (b[i] - soma) / A[i, i]
+
+        end
+
+        # Maior diferença entre duas iterações
+        erro = maximum(abs.(x_novo - x))
+
+        # Atualiza a solução
         x = x_novo
 
-        if verbose
-            x_str = sprint(show, round.(x, digits=5))
-            println(" $(rpad(k, 8))   $(rpad(x_str, 38))   $(round(erro, sigdigits=5))")
-        end
-
+        # Critério de parada
         if erro < tol
-            convergido = true
-            break
+            return x, k
         end
     end
 
-    norma_res = norm(b - A * x, Inf)
-
-    if verbose
-        println("\n")
-        println(" Status final        : ", convergido ? "Convergeu" : "Nao convergiu")
-        println(" Total de iteracoes  : $(length(historico))")
-        println(" Erro relativo final : $(round(historico[end].erro, sigdigits=5))")
-        println(" Norma do residuo    : $(round(norma_res, sigdigits=5))")
-        println(" Solucao final x     : ", round.(x, digits=6))
-        println("\n")
-    end
-
-    return (; x, iteracoes=length(historico), convergido,
-        norma_residuo=norma_res, erro_final=historico[end].erro,
-        alfa_max, criterio_linhas=valido, alphas, historico)
+    # Caso atinja o número máximo de iterações
+    return x, maxiter
 end
 
-resultado = resolver_jacobi(matriz, vetor; x0=chute_inicial, tol=criterio_erro, max_iter=limite_iteracoes, verbose=exibir_etapas)
-@assert resultado.convergido
+
+# ==========================================================
+# TESTE
+# ==========================================================
+
+A = [
+    10  -1   2
+    -1  11  -1
+     2  -1  10
+]
+
+b = [11, 9, 11]
+
+x0 = [0, 0, 0]
+
+tol = 1e-8
+
+maxiter = 100
+
+x, iteracoes = jacobi(A, b, x0, tol, maxiter)
+
+println("Solução aproximada:")
+println(x)
+
+println("\nNúmero de iterações:")
+println(iteracoes)

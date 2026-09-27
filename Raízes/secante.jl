@@ -1,4 +1,4 @@
-# Dupla: Paulo Fernando P Junior e Davi Rodrigues
+# Dupla 16: Davi Rodrigues e Paulo Fernando P. Junior
 # MÉTODO DA SECANTE
 
 function secante(f, x0, x1, tol, maxiter)

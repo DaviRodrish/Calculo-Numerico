@@ -1,4 +1,4 @@
-# Dupla: Paulo Fernando P Junior e Davi Rodrigues
+# Dupla 16: Davi Rodrigues e Paulo Fernando P. Junior
 # MÉTODO DE NEWTON-RAPHSON
 
 function newton(f, df, x0, tol, maxiter)

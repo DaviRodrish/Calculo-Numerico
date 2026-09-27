@@ -1,84 +1,84 @@
+# Dupla 16: Davi Rodrigues e Paulo Fernando P. Junior
+# Método: Eliminação Gaussiana com Pivoteamento Parcial
+
 using LinearAlgebra
 
-matriz = [
-    5.0 -1.0 2.0;
-    3.0 8.0 -2.0;
-    1.0 1.0 4.0
-]
-vetor = [12.0, -25.0, 6.0]
-tolerancia_pivo = 1e-12
-exibir_etapas = true
+function gauss_pivot(A, b)
 
-function retro_substituicao(U::AbstractMatrix, c::AbstractVector)
-    n = length(c)
-    x = zeros(Float64, n)
-    for i in n:-1:1
-        termo = dot(@view(U[i, i+1:n]), @view(x[i+1:n]))
-        x[i] = (c[i] - termo) / U[i, i]
+    n = length(b)
+
+    # Verifica se A é quadrada
+    if size(A) != (n, n)
+        error("A matriz deve ser quadrada e compatível com b.")
     end
+
+    #Matriz aumentada [A | b]
+    M = float([A b])
+
+    # Eliminação Gaussiana
+    for k in 1:n-1
+
+        # Procura o maior pivô em módulo
+        p = argmax(abs.(M[k:n, k])) + k - 1
+
+        # Verifica se o pivô é zero
+        if abs(M[p, k]) < 1e-12
+            error("Sistema sem solução única.")
+        end
+
+        # Troca as linhas
+        if p != k
+            M[[k, p], :] = M[[p, k], :]
+        end
+
+        # Zera os elementos abaixo do pivô
+        for i in k+1:n
+
+            fator = M[i, k] / M[k, k]
+
+            for j in k:n+1
+                M[i, j] = M[i, j] - fator * M[k, j]
+            end
+
+        end
+    end
+
+    # Verifica o último pivô
+    if abs(M[n, n]) < 1e-12
+        error("Sistema sem solução única.")
+    end
+
+    # SUBSTITUIÇÃO REGRESSIVA
+
+    x = zeros(Float64, n)
+
+    for i in n:-1:1
+
+        soma = 0.0
+
+        for j in i+1:n
+            soma += M[i, j] * x[j]
+        end
+
+        x[i] = (M[i, n+1] - soma) / M[i, i]
+
+    end
+
     return x
 end
 
-function resolver_gauss(A::AbstractMatrix, b::AbstractVector; tol=1e-12, verbose=true, detalhes=false)
-    n = length(b)
-    size(A) == (n, n) || throw(DimensionMismatch("A matriz deve ser quadrada e compativel com o vetor."))
 
-    M = float([A b])
-    trocas_linhas = 0
 
-    if verbose
-        println("  ELIMINACAO GAUSSIANA - PIVOTEAMENTO PARCIAL")
-        println("\n")
-        println("Matriz aumentada inicial [A | b]:")
-        display(round.(M, digits=4))
-        println()
-    end
+# Teste
+A = [
+     2   1  -1
+    -3  -1   2
+    -2   1   2
+]
 
-    for k in 1:n-1
-        p = argmax(abs.(@view M[k:n, k])) + k - 1
-        pivo = M[p, k]
+b = [8, -11, -3]
 
-        abs(pivo) < tol && error("Pivo nulo na coluna $k.")
+x = gauss_pivot(A, b)
 
-        if p != k
-            M[[k, p], :] = M[[p, k], :]
-            trocas_linhas += 1
-            verbose && println("[Passo $k] Troca: L$k <-> L$p | Pivo = $(round(M[k, k], digits=4))")
-        else
-            verbose && println("[Passo $k] Pivo L$k = $(round(M[k, k], digits=4)) (sem troca)")
-        end
-
-        for i in k+1:n
-            fator = M[i, k] / M[k, k]
-            M[i, k:end] .-= fator .* M[k, k:end]
-        end
-
-        if verbose
-            println("-> Matriz apos escalonar coluna $k:")
-            display(round.(M, digits=4))
-            println()
-        end
-    end
-
-    abs(M[n, n]) < tol && error("Pivo nulo no elemento ($n, $n).")
-
-    x = retro_substituicao(@view(M[:, 1:n]), @view(M[:, n+1]))
-    det_A = ((-1)^trocas_linhas) * prod(diag(@view M[:, 1:n]))
-    norma_res = norm(b - A * x, Inf)
-
-    if verbose
-        println("\n")
-        println("  RESULTADOS FINAIS")
-        println("\n")
-        println("  • Trocas de linha  : $trocas_linhas")
-        println("  • det(A) calculado : $(round(det_A, digits=6))")
-        println("  • Norma residuo    : $(round(norma_res, sigdigits=4))")
-        println("  • Solucao x        : ", round.(x, digits=6))
-        println("\n")
-    end
-
-    return detalhes ? (; x, determinante=det_A, trocas_linhas, norma_residuo=norma_res) : x
-end
-
-solucao = resolver_gauss(matriz, vetor; tol=tolerancia_pivo, verbose=exibir_etapas)
-@assert norm(matriz * solucao - vetor) < 1e-10
+println("Solução:")
+println(x)
