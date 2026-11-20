@@ -30,10 +30,10 @@ function bissecao(f, a, b, tol, maxiter)
 end
 
 # DADOS
-f(x) = x^3 - x - 2
+f(x) = x^2 - 3
 
-a = 1.0
-b = 2.0
+a = 1
+b = 2
 
 tol = 0.0001
 maxiter = 100

@@ -34,10 +34,10 @@ function falsa_posicao(f, a, b, tol, maxiter)
 end
 
 # DADOS
-f(x) = x^3 - x - 2
+f(x) = x^3 - 4x +1
 
-a = 1.0
-b = 2.0
+a = 0
+b = 1
 
 tol = 0.0001
 maxiter = 100
